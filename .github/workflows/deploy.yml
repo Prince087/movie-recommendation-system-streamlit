@@ -1,0 +1,45 @@
+name: Deploy Movie Recommender to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to EC2 via SSH
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploying App to AWS EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          port: 22
+          script: |
+            # Navigate to the repository directory
+            cd ~/movie-recommendation-system-streamlit
+
+            # Hard reset local repo changes to match origin/main (handles any untracked or modified files cleanly)
+            git fetch origin
+            git reset --hard origin/main
+
+            # Pull Git LFS objects (movies.pkl, similarity.pkl)
+            git lfs pull
+
+            # Build the new Docker image
+            docker build -t movie-recommender .
+
+            # Stop and remove the existing container if it exists
+            docker stop movie-app || true
+            docker rm movie-app || true
+
+            # Run the new container with automatic restart policies and env variables passed
+            docker run -d \
+              -p 8501:8501 \
+              --name movie-app \
+              --restart always \
+              -e TMDB_API_KEY="${{ secrets.TMDB_API_KEY }}" \
+              movie-recommender

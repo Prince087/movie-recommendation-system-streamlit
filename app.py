@@ -2,9 +2,10 @@ import streamlit as st
 import pickle
 import pandas as pd
 import requests
+import os
 
-# TMDB API Key
-API_KEY = "5b010ede2672394ffab50c3f9d3b32cf"
+# TMDB API Key - load from environment variable with fallback
+API_KEY = os.getenv("TMDB_API_KEY", "5b010ede2672394ffab50c3f9d3b32cf")
 
 # Load saved data
 movies = pickle.load(open('movies.pkl', 'rb'))
