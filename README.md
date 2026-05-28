@@ -157,7 +157,7 @@ docker run -p 8501:8501 -e TMDB_API_KEY="your_key" movie-recommender
 
 ---
 
-## 👨‍💻 Author
+## 👨💻 Author
 
 **Prince** — [GitHub](https://github.com/Prince087)
 
